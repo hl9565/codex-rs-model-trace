@@ -37,4 +37,4 @@ cpr-plugin package --manifest plugin.json \
 ```
 
 产物 `dist/xunzhimeng.model-trace-<version>-<triple>.tar.gz` 通过管理端
-「插件 → 上传」安装（需 `models`、`accounts` 权限）。
+「插件 → 上传」安装。

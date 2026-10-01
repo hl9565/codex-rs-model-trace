@@ -99,6 +99,7 @@ fn json_response(status: u16, body: serde_json::Value) -> ManagementResult {
     Ok(TypedReply::new(ManagementResponse {
         status,
         content_type: "application/json".to_owned(),
+        headers: Vec::new(),
     })
     .with_payload(serde_json::to_vec(&body).unwrap_or_default()))
 }
@@ -282,10 +283,10 @@ async fn settle_stale(
     for query in &mut settled.queries {
         if query.status == "running" {
             // 旧版未预登记的调用也补记一次未知消耗，恢复不能绕开尝试预算。
-            if !query
+            if query
                 .attempts
                 .last()
-                .is_some_and(|attempt| attempt.status == "running")
+                .is_none_or(|attempt| attempt.status != "running")
             {
                 query
                     .attempts
@@ -617,10 +618,10 @@ async fn execute_step(call: &ManagementCall, run: RunState, position: usize) -> 
             return json_response(500, json!({"error": "query state missing"}));
         };
         if query.attempts.len() as u32 != attempt_index
-            || !query
+            || query
                 .attempts
                 .last()
-                .is_some_and(|attempt| attempt.status == "running")
+                .is_none_or(|attempt| attempt.status != "running")
         {
             return json_response(200, json!({"run": current.view()}));
         }
@@ -918,14 +919,12 @@ fn registration() -> ManagementRegistration {
 
 #[cfg(test)]
 mod tests {
-    use gateway_plugin_sdk::{Capability, Manifest, Permission};
+    use gateway_plugin_sdk::{Capability, Manifest};
 
     #[test]
     fn manifest_parses_and_declares_management() {
         let manifest = Manifest::from_author_slice(include_bytes!("../plugin.json")).unwrap();
-        assert_eq!(manifest.manifest_version, 1);
-        assert!(manifest.permissions.contains(&Permission::Models));
-        assert!(manifest.permissions.contains(&Permission::Accounts));
+        assert_eq!(manifest.manifest_version, 2);
         assert!(manifest.contributes.contains_key(&Capability::Management));
     }
 }

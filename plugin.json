@@ -1,9 +1,9 @@
 {
-  "manifestVersion": 1,
+  "manifestVersion": 2,
   "name": "model-trace",
   "displayName": "模型指纹检测",
   "publisher": "xunzhimeng",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "基于 ModelTrace 数字指纹方法：向指定账号与模型发送三条长整数挑战，比对指纹库推测实际模型家族与版本。",
   "license": "MIT",
   "author": "xunzhimeng",
@@ -15,7 +15,6 @@
   "contributes": {
     "management": {}
   },
-  "permissions": ["models", "accounts"],
   "resources": {
     "ui/index.html": "text/html",
     "ui/app.js": "text/javascript",

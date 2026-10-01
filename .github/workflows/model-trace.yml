@@ -62,7 +62,7 @@ jobs:
         run: |
           git clone --depth 50 https://github.com/zyycn/codex-proxy-rs.git /tmp/codex-proxy-rs
           cd /tmp/codex-proxy-rs
-          git checkout 1c6b5a8f1045781d31a301382f1182f1a5657ec8
+          git checkout 9c1067676495623111497111b7cb136544fe1828
           cargo build --manifest-path backend/Cargo.toml --release --locked -p codex-proxy-plugin-cli
       - name: package
         run: |

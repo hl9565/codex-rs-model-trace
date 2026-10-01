@@ -75,14 +75,13 @@ impl Host {
         };
         host.send(Frame::control(Message::Hello {
             handshake: Handshake {
-                protocol_version: 1,
+                protocol_version: gateway_plugin_sdk::PROTOCOL_VERSION,
                 artifact_sha256: "a".repeat(64),
                 plugin_id: "xunzhimeng.model-trace".into(),
                 instance_id: "test".into(),
                 generation: 1,
                 incarnation: "test".into(),
                 configuration,
-                permissions: manifest.permissions.into_iter().collect(),
                 contributes: manifest.contributes,
             },
         }));
@@ -116,6 +115,7 @@ impl Host {
                     incarnation: "test".into(),
                     stage,
                     timeout_ms: 5000,
+                    resource_stream: false,
                     resource_scope_id: format!("scope-{id}"),
                     request_id: None,
                     attempt_id: None,
