@@ -11,10 +11,39 @@
   var ALPHA = 0.5;
 
   function randomIndex(length) {
-    var limit = Math.floor(0x100000000 / length) * length;
-    var buffer = new Uint32Array(1);
-    do crypto.getRandomValues(buffer); while (buffer[0] >= limit);
-    return buffer[0] % length;
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      var limit = Math.floor(0x100000000 / length) * length;
+      var buffer = new Uint32Array(1);
+      do crypto.getRandomValues(buffer); while (buffer[0] >= limit);
+      return buffer[0] % length;
+    }
+    return Math.floor(Math.random() * length);
+  }
+
+  function generateUuid() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      var bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      var hex = [];
+      for (var i = 0; i < 16; i++) {
+        hex.push((bytes[i] < 16 ? '0' : '') + bytes[i].toString(16));
+      }
+      return hex.slice(0, 4).join('') + '-' +
+        hex.slice(4, 6).join('') + '-' +
+        hex.slice(6, 8).join('') + '-' +
+        hex.slice(8, 10).join('') + '-' +
+        hex.slice(10, 16).join('');
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = (Math.random() * 16) | 0;
+      var v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   function choose(values) {
@@ -60,7 +89,7 @@
     ];
     return uniqueLengths(count).map(function (length, index) {
       return {
-        id: 'probe-' + (index + 1) + '-' + crypto.randomUUID(),
+        id: 'probe-' + (index + 1) + '-' + generateUuid(),
         expected_count: length,
         prompt: choose(openings) + '。' + choose(actions) + ' ' + length
           + ' 个 ' + VALUE_MIN + ' 到 ' + VALUE_MAX + '（含端点）的整数。'
